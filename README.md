@@ -4,6 +4,8 @@ A simple teaching tool that shows what happens when an HTML form is submitted.
 
 The page does not send any data to a real server. Instead, it uses the browser's `FormData` API to show the data that would normally be submitted.
 
+https://russmaxdesign.github.io/html-form-submission-visualiser/
+
 ## What this tool does
 
 The tool contains a range of common HTML form controls.
