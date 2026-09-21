@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML form submission visualiser</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    .wrapper {
+      width: min(1100px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.2;
+    }
+
+    .intro {
+      max-width: 72ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+        align-items: start;
+      }
+
+      .results {
+        position: sticky;
+        top: 1rem;
+      }
+    }
+
+    form,
+    .panel {
+      border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      background: color-mix(in srgb, Canvas 96%, CanvasText 4%);
+    }
+
+    fieldset {
+      border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
+      border-radius: 0.5rem;
+      margin: 0 0 1.25rem;
+      padding: 1rem;
+    }
+
+    legend {
+      font-weight: 700;
+      padding-inline: 0.3rem;
+    }
+
+    .field {
+      margin-block: 1rem;
+    }
+
+    .field:first-child {
+      margin-top: 0;
+    }
+
+    label,
+    .field-label {
+      display: block;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select,
+    textarea {
+      width: min(100%, 34rem);
+      box-sizing: border-box;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid color-mix(in srgb, CanvasText 35%, transparent);
+      border-radius: 0.35rem;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    input[type="text"][readonly] {
+      background: color-mix(in srgb, CanvasText 8%, Canvas);
+      color: CanvasText;
+    }
+
+    input[type="text"]:disabled {
+      background: color-mix(in srgb, CanvasText 16%, Canvas);
+      color: color-mix(in srgb, CanvasText 50%, Canvas);
+      cursor: not-allowed;
+    }
+
+    textarea {
+      min-height: 6rem;
+      resize: vertical;
+    }
+
+    .choice {
+      display: flex;
+      gap: 0.5rem;
+      align-items: start;
+      margin-block: 0.4rem;
+    }
+
+    .choice label {
+      display: inline;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .help {
+      margin: 0.35rem 0 0;
+      color: color-mix(in srgb, CanvasText 72%, transparent);
+      font-size: 0.95rem;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    code {
+      padding: 0.05em 0.25em;
+      border-radius: 0.25rem;
+      background: color-mix(in srgb, CanvasText 10%, transparent);
+    }
+
+    .hidden-note {
+      border: 2px dashed color-mix(in srgb, CanvasText 45%, transparent);
+      border-radius: 0.45rem;
+      padding: 0.8rem 1rem;
+    }
+
+    .hidden-note-title {
+      margin: 0;
+      font-weight: 650;
+    }
+
+    .hidden-note pre {
+      margin: 0.6rem 0;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .hidden-note .help {
+      margin: 0;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      border: 1px solid color-mix(in srgb, CanvasText 35%, transparent);
+      border-radius: 0.4rem;
+      padding: 0.6rem 0.9rem;
+      cursor: pointer;
+      background: ButtonFace;
+      color: ButtonText;
+    }
+
+    button[type="submit"] {
+      font-weight: 700;
+    }
+
+    .results h2 {
+      margin-top: 0;
+    }
+
+    .output-list {
+      margin: 0;
+      padding-left: 1.3rem;
+    }
+
+    .output-list li {
+      margin-block: 0.35rem;
+    }
+
+    .results h4 {
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    .rule-list {
+      margin: 0;
+      padding-left: 1.3rem;
+    }
+
+    .rule-list li {
+      margin-block: 0.25rem;
+    }
+
+    .empty {
+      color: color-mix(in srgb, CanvasText 65%, transparent);
+      font-style: italic;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      padding: 0.9rem;
+      border-radius: 0.45rem;
+      background: color-mix(in srgb, CanvasText 8%, transparent);
+    }
+
+    .note {
+      border-left: 0.3rem solid currentColor;
+      padding-left: 0.9rem;
+    }
+
+    .comparison {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .comparison > div {
+      padding: 0.8rem;
+      border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+      border-radius: 0.45rem;
+    }
+
+    .comparison strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrapper">
+    <h1>HTML form submission visualiser</h1>
+
+    <p class="intro">
+      This page does not send anything to a server. When you submit the form,
+      JavaScript prevents navigation and asks the browser to construct the
+      <code>FormData</code> that would normally be submitted.
+    </p>
+
+    <div class="layout">
+      <form id="demo-form" action="/example-endpoint" method="post">
+        <fieldset>
+          <legend>Hidden field</legend>
+
+          <input
+            type="hidden"
+            name="recordId"
+            value="ABC-12345">
+
+          <div class="hidden-note">
+            <p class="hidden-note-title">
+              Hidden field here to provide record identification - <code>recordId</code>
+            </p>
+            <pre>&lt;input type="hidden" name="recordId" value="ABC-12345"&gt;</pre>
+            <p class="help">
+              Users never see this field, but it is submitted like any other
+              control. In a real form, the server usually fills in the value,
+              such as the ID of the record being edited.
+            </p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Text fields</legend>
+
+          <div class="field">
+            <label for="full-name">Full name</label>
+            <input
+              type="text"
+              id="full-name"
+              name="fullName">
+            <p class="help">
+              <code>id="full-name"</code> connects the label.
+              <code>name="fullName"</code> becomes the submitted field name.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="no-name">Input with no name</label>
+            <input
+              type="text"
+              id="no-name">
+            <p class="help">
+              Type something here. The control works normally, but because it
+              has no <code>name</code>, it does not appear in the submitted data.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email">
+          </div>
+
+          <div class="field">
+            <label for="readonly-example">Readonly field</label>
+            <input
+              type="text"
+              id="readonly-example"
+              name="readonlyExample"
+              value="Readonly values are submitted"
+              readonly>
+          </div>
+
+          <div class="field">
+            <label for="disabled-example">Disabled field</label>
+            <input
+              type="text"
+              id="disabled-example"
+              name="disabledExample"
+              value="Disabled values are not submitted"
+              disabled>
+          </div>
+
+        </fieldset>
+
+        <fieldset>
+          <legend>Checkboxes as separate yes/no questions</legend>
+
+          <div class="choice">
+            <input
+              type="checkbox"
+              id="newsletter"
+              name="newsletter"
+              value="yes">
+            <label for="newsletter">
+              Subscribe to newsletter
+              <span class="help">(checked means <code>newsletter=yes</code>)</span>
+            </label>
+          </div>
+
+          <div class="choice">
+            <input
+              type="checkbox"
+              id="updates"
+              name="updates"
+              value="yes">
+            <label for="updates">
+              Product updates
+              <span class="help">(unchecked means no entry at all)</span>
+            </label>
+          </div>
+
+          <p class="help">
+            Each checkbox has its own <code>name</code>, so each one is a
+            separate question. The <code>name</code> carries the meaning and
+            the <code>value</code> is just "yes". The server checks whether each
+            name turned up at all.
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Radio buttons</legend>
+
+          <p class="field-label">Preferred contact method</p>
+
+          <div class="choice">
+            <input
+              type="radio"
+              id="contact-email"
+              name="contactMethod"
+              value="email">
+            <label for="contact-email">Email</label>
+          </div>
+
+          <div class="choice">
+            <input
+              type="radio"
+              id="contact-phone"
+              name="contactMethod"
+              value="phone">
+            <label for="contact-phone">Phone</label>
+          </div>
+
+          <div class="choice">
+            <input
+              type="radio"
+              id="contact-none"
+              name="contactMethod"
+              value="none">
+            <label for="contact-none">No contact</label>
+          </div>
+
+          <p class="help">
+            The shared <code>name="contactMethod"</code> creates the radio group
+            and also becomes the submitted field name. If no radio button is
+            selected, the group sends nothing at all.
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Select elements</legend>
+
+          <div class="field">
+            <label for="state">State</label>
+            <select id="state" name="state" required>
+              <option value="">Choose a state</option>
+              <option value="act">ACT</option>
+              <option value="nsw">NSW</option>
+              <option value="qld">Queensland</option>
+              <option value="sa">South Australia</option>
+              <option value="tas">Tasmania</option>
+              <option value="vic">Victoria</option>
+              <option value="wa">Western Australia</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="topics">Topics of interest</label>
+            <select id="topics" name="topics" multiple size="4">
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="accessibility">Accessibility</option>
+              <option value="javascript">JavaScript</option>
+            </select>
+            <p class="help">
+              A multiple select can create several entries with the same name.
+            </p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Textarea and number</legend>
+
+          <div class="field">
+            <label for="comments">Comments</label>
+            <textarea id="comments" name="comments"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="quantity">Quantity</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              min="1">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Checkboxes as one tick-all-that-apply question</legend>
+
+          <div class="choice">
+            <input
+              type="checkbox"
+              id="skill-html"
+              name="skills"
+              value="html">
+            <label for="skill-html">HTML</label>
+          </div>
+
+          <div class="choice">
+            <input
+              type="checkbox"
+              id="skill-css"
+              name="skills"
+              value="css">
+            <label for="skill-css">CSS</label>
+          </div>
+
+          <div class="choice">
+            <input
+              type="checkbox"
+              id="skill-a11y"
+              name="skills"
+              value="accessibility">
+            <label for="skill-a11y">Accessibility</label>
+          </div>
+
+          <p class="help">
+            All three checkboxes share <code>name="skills"</code>, so together
+            they answer one question. Here the <code>value</code> carries the
+            meaning. Checked boxes create repeated entries such as
+            <code>skills=html</code> and <code>skills=css</code>, which the
+            server reads as a list.
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Submit buttons</legend>
+
+          <p>
+            The button you use to submit can contribute its own
+            <code>name=value</code> pair.
+          </p>
+
+          <div class="buttons">
+            <button
+              type="submit"
+              name="action"
+              value="save">
+              Save draft
+            </button>
+
+            <button
+              type="submit"
+              name="action"
+              value="publish">
+              Publish
+            </button>
+
+            <button type="reset">
+              Reset form
+            </button>
+          </div>
+        </fieldset>
+      </form>
+
+      <section class="results panel" aria-labelledby="results-heading">
+        <h2 id="results-heading">What the browser would submit</h2>
+
+        <div id="status" class="note">
+          Submit the form to see the result.
+        </div>
+
+        <h3>FormData entries</h3>
+        <div id="entries" aria-live="polite">
+          <p class="empty">No submission yet.</p>
+        </div>
+
+        <h3>URL-encoded view</h3>
+        <pre id="encoded">No submission yet.</pre>
+
+        <h3>Request summary</h3>
+        <div class="comparison">
+          <div>
+            <strong>Method</strong>
+            <span id="method">POST</span>
+          </div>
+          <div>
+            <strong>Action</strong>
+            <span id="action">/example-endpoint</span>
+          </div>
+        </div>
+
+        <h3>Key lessons</h3>
+        <p>
+          The browser submits controls by their <code>name</code>, not their
+          <code>id</code>. The <code>id</code> connects the label; the
+          <code>name</code> labels the data.
+        </p>
+
+        <h4>What gets submitted</h4>
+        <ul class="rule-list">
+          <li>Controls that have a <code>name</code></li>
+          <li>Readonly fields</li>
+          <li>Hidden inputs</li>
+          <li>Checked checkboxes, using their <code>value</code></li>
+          <li>The selected radio button in each group</li>
+          <li>Selected options in a select (every selected option in a multiple select)</li>
+          <li>The submit button that was used, if it has a <code>name</code></li>
+        </ul>
+
+        <h4>What does not get submitted</h4>
+        <ul class="rule-list">
+          <li>Controls with no <code>name</code></li>
+          <li>Disabled fields</li>
+          <li>Unchecked checkboxes (not even as <code>false</code> or <code>no</code>)</li>
+          <li>Radio buttons that are not selected</li>
+          <li>Options that are not selected</li>
+          <li>Submit buttons that were not used, and reset buttons</li>
+          <li>Anything at all, if the form fails validation</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const form = document.querySelector('#demo-form');
+    const entriesContainer = document.querySelector('#entries');
+    const encodedOutput = document.querySelector('#encoded');
+    const status = document.querySelector('#status');
+    const methodOutput = document.querySelector('#method');
+    const actionOutput = document.querySelector('#action');
+
+    function valueToText(value) {
+      return typeof value === 'string' ? value : '[non-text value]';
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (!form.reportValidity()) {
+        return;
+      }
+
+      const submitter = event.submitter;
+      const formData = new FormData(form);
+
+      if (submitter && submitter.name) {
+        formData.append(submitter.name, submitter.value);
+      }
+
+      const entries = [...formData.entries()];
+
+      if (entries.length === 0) {
+        entriesContainer.innerHTML =
+          '<p class="empty">No successful controls were submitted.</p>';
+      } else {
+        const list = document.createElement('ol');
+        list.className = 'output-list';
+
+        for (const [name, value] of entries) {
+          const item = document.createElement('li');
+
+          const nameCode = document.createElement('code');
+          nameCode.textContent = name;
+
+          const valueCode = document.createElement('code');
+          valueCode.textContent = valueToText(value);
+
+          item.append(nameCode, ' = ', valueCode);
+          list.append(item);
+        }
+
+        entriesContainer.replaceChildren(list);
+      }
+
+      const params = new URLSearchParams();
+
+      for (const [name, value] of entries) {
+        if (typeof value === 'string') {
+          params.append(name, value);
+        }
+      }
+
+      encodedOutput.textContent = params.toString() || '(empty)';
+
+      methodOutput.textContent = form.method.toUpperCase();
+      actionOutput.textContent = new URL(form.action).pathname;
+
+      const buttonDescription = submitter
+        ? ` using “${submitter.textContent.trim()}”`
+        : '';
+
+      status.textContent =
+        `Submission intercepted${buttonDescription}. Nothing was sent to a server.`;
+    });
+
+    form.addEventListener('reset', () => {
+      requestAnimationFrame(() => {
+        entriesContainer.innerHTML = '<p class="empty">No submission yet.</p>';
+        encodedOutput.textContent = 'No submission yet.';
+        status.textContent = 'Submit the form to see the result.';
+      });
+    });
+  </script>
+</body>
+</html>
