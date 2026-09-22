@@ -2,20 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>HTML form submission visualiser</title>
+  <title>HTML form submission visualiser - Intopia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="shortcut icon" href="https://intopia.digital/wp-content/uploads/2017/06/cropped-Intopia_FINAL_icon-32x32.png" sizes="32x32">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
     :root {
-      color-scheme: light dark;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --ink: #16233d;
+      --ink-soft: #4a5875;
+      --paper: #efefef;
+      --panel: #ffffff;
+      --line: #d9d2be;
+      --border-strong: #dddddd;
+      --red: #a5322a;
+      --red-bg: #fbeae7;
+      --green: #29614a;
+      --green-bg: #e9f2ec;
+      --amber: #93641a;
+      --amber-bg: #faf1dc;
+      --neutral: #5b6472;
+      --neutral-bg: #f4f3ef;
+      --info: #29506b;
+      --info-bg: #e6eef3;
+      --focus: #1b4fbf;
+      --brand: #c03c0c;
+      --font-brand: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Frutiger, 'Frutiger Linotype', Univers, Calibri, 'Gill Sans', 'Gill Sans MT', 'Myriad Pro', Myriad, 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --radius: 4px;
+
+      color-scheme: light;
+      font-family: var(--font-body);
       line-height: 1.5;
     }
 
     body {
       margin: 0;
-      background: Canvas;
-      color: CanvasText;
+      background: var(--paper);
+      color: var(--ink);
     }
 
     .wrapper {
@@ -24,12 +50,55 @@
       padding: 2rem 0 4rem;
     }
 
-    h1, h2, h3 {
+    /* Focus */
+
+    :focus {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .intopia-logo {
+      width: 180px;
+      height: auto;
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-brand);
+      color: var(--brand);
+      font-size: 2.4rem;
+      font-weight: 600;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    h2, h3, h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--ink);
       line-height: 1.2;
     }
 
     .intro {
       max-width: 72ch;
+      margin-top: 1.25rem;
     }
 
     .layout {
@@ -51,23 +120,27 @@
       }
     }
 
+    /* Surfaces */
+
     form,
     .panel {
-      border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
-      border-radius: 0.75rem;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius);
       padding: 1.25rem;
-      background: color-mix(in srgb, Canvas 96%, CanvasText 4%);
+      background: var(--panel);
     }
 
     fieldset {
-      border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
-      border-radius: 0.5rem;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius);
       margin: 0 0 1.25rem;
       padding: 1rem;
     }
 
     legend {
-      font-weight: 700;
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--ink);
       padding-inline: 0.3rem;
     }
 
@@ -82,9 +155,11 @@
     label,
     .field-label {
       display: block;
-      font-weight: 650;
+      font-weight: 600;
       margin-bottom: 0.35rem;
     }
+
+    /* Form controls */
 
     input,
     select,
@@ -101,20 +176,21 @@
       width: min(100%, 34rem);
       box-sizing: border-box;
       padding: 0.55rem 0.65rem;
-      border: 1px solid color-mix(in srgb, CanvasText 35%, transparent);
-      border-radius: 0.35rem;
-      background: Canvas;
-      color: CanvasText;
+      border: 1px solid var(--ink-soft);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
     }
 
     input[type="text"][readonly] {
-      background: color-mix(in srgb, CanvasText 8%, Canvas);
-      color: CanvasText;
+      background: var(--neutral-bg);
+      color: var(--ink);
     }
 
     input[type="text"]:disabled {
-      background: color-mix(in srgb, CanvasText 16%, Canvas);
-      color: color-mix(in srgb, CanvasText 50%, Canvas);
+      background: color-mix(in srgb, var(--neutral) 20%, var(--panel));
+      color: color-mix(in srgb, var(--neutral) 70%, var(--panel));
+      border-color: color-mix(in srgb, var(--neutral) 50%, var(--panel));
       cursor: not-allowed;
     }
 
@@ -138,30 +214,53 @@
 
     .help {
       margin: 0.35rem 0 0;
-      color: color-mix(in srgb, CanvasText 72%, transparent);
+      color: var(--ink-soft);
       font-size: 0.95rem;
     }
 
     code,
     pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
     }
 
     code {
       padding: 0.05em 0.25em;
-      border-radius: 0.25rem;
-      background: color-mix(in srgb, CanvasText 10%, transparent);
+      border-radius: var(--radius);
+      background: var(--neutral-bg);
+      font-size: 0.92em;
     }
 
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      padding: 0.9rem;
+      border-radius: var(--radius);
+      background: var(--neutral-bg);
+      border: 1px solid var(--border-strong);
+      font-size: 0.9rem;
+    }
+
+    pre code,
+    li code {
+      background: transparent;
+    }
+
+    .output-list code,
+    .rule-list code {
+      background: var(--panel);
+    }
+
+    /* Hidden field note */
+
     .hidden-note {
-      border: 2px dashed color-mix(in srgb, CanvasText 45%, transparent);
-      border-radius: 0.45rem;
+      border: 2px dashed var(--neutral);
+      border-radius: var(--radius);
       padding: 0.8rem 1rem;
     }
 
     .hidden-note-title {
       margin: 0;
-      font-weight: 650;
+      font-weight: 600;
     }
 
     .hidden-note pre {
@@ -173,17 +272,29 @@
       margin: 0;
     }
 
+    /* Messages above the buttons */
+
     .form-message {
       margin: 0;
-      font-weight: 650;
+      font-weight: 600;
     }
 
     .form-message:not(:empty) {
       margin-top: 1rem;
       padding: 0.6rem 0.9rem;
-      border-left: 0.3rem solid currentColor;
-      background: color-mix(in srgb, CanvasText 8%, transparent);
+      border-radius: var(--radius);
+      border-left: 0.3rem solid var(--green);
+      background: var(--green-bg);
+      color: var(--green);
     }
+
+    .form-message[data-tone="neutral"]:not(:empty) {
+      border-left-color: var(--neutral);
+      background: var(--neutral-bg);
+      color: var(--neutral);
+    }
+
+    /* Buttons */
 
     .buttons {
       display: flex;
@@ -193,20 +304,35 @@
     }
 
     button {
-      border: 1px solid color-mix(in srgb, CanvasText 35%, transparent);
-      border-radius: 0.4rem;
-      padding: 0.6rem 0.9rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.1rem;
       cursor: pointer;
-      background: ButtonFace;
-      color: ButtonText;
+      border-radius: var(--radius);
+      padding: 12px 22px;
+      background: var(--neutral-bg);
+      color: var(--ink);
+      border: 2px solid var(--ink-soft);
     }
 
-    button[type="submit"] {
-      font-weight: 700;
+    .btn-primary {
+      background: var(--brand);
+      color: #ffffff;
+      border: 2px solid var(--brand);
     }
+
+    /* Results panel */
 
     .results h2 {
       margin-top: 0;
+    }
+
+    .note {
+      border-left: 0.3rem solid var(--info);
+      background: var(--info-bg);
+      color: var(--info);
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius);
     }
 
     .output-list {
@@ -218,8 +344,46 @@
       margin-block: 0.35rem;
     }
 
-    .results h4 {
-      margin: 1.25rem 0 0.4rem;
+    .empty {
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .comparison {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .comparison > div {
+      padding: 0.8rem;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+    }
+
+    .comparison strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .rule-group {
+      margin-top: 1rem;
+      padding: 0.8rem 1rem 0.9rem;
+      border-radius: var(--radius);
+      border-left: 0.3rem solid;
+    }
+
+    .rule-group h4 {
+      margin: 0 0 0.4rem;
+    }
+
+    .rule-submitted {
+      background: var(--green-bg);
+      border-left-color: var(--green);
+    }
+
+    .rule-not-submitted {
+      background: var(--neutral-bg);
+      border-left-color: var(--neutral);
     }
 
     .rule-list {
@@ -230,45 +394,16 @@
     .rule-list li {
       margin-block: 0.25rem;
     }
-
-    .empty {
-      color: color-mix(in srgb, CanvasText 65%, transparent);
-      font-style: italic;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      padding: 0.9rem;
-      border-radius: 0.45rem;
-      background: color-mix(in srgb, CanvasText 8%, transparent);
-    }
-
-    .note {
-      border-left: 0.3rem solid currentColor;
-      padding-left: 0.9rem;
-    }
-
-    .comparison {
-      display: grid;
-      gap: 0.8rem;
-    }
-
-    .comparison > div {
-      padding: 0.8rem;
-      border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
-      border-radius: 0.45rem;
-    }
-
-    .comparison strong {
-      display: block;
-      margin-bottom: 0.25rem;
-    }
   </style>
 </head>
 <body>
   <main class="wrapper">
-    <h1>HTML form submission visualiser</h1>
+    <div class="brand">
+      <img src="https://intopia.digital/wp-content/themes/intopia-refresh/assets/images/intopia.png" alt="Intopia logo" class="intopia-logo">
+      <div class="brand-text">
+        <h1>HTML form submission visualiser</h1>
+      </div>
+    </div>
 
     <p class="intro">
       This page does not send anything to a server. When you submit the form,
@@ -540,7 +675,8 @@
             <button
               type="submit"
               name="action"
-              value="submit">
+              value="submit"
+              class="btn-primary">
               Submit
             </button>
 
@@ -589,27 +725,31 @@
           <code>name</code> labels the data.
         </p>
 
-        <h4>What gets submitted</h4>
-        <ul class="rule-list">
-          <li>Controls that have a <code>name</code></li>
-          <li>Readonly fields</li>
-          <li>Hidden inputs</li>
-          <li>Checked checkboxes, using their <code>value</code></li>
-          <li>The selected radio button in each group</li>
-          <li>Selected options in a select (every selected option in a multiple select)</li>
-          <li>The submit button that was used, if it has a <code>name</code></li>
-        </ul>
+        <div class="rule-group rule-submitted">
+          <h4>What gets submitted</h4>
+          <ul class="rule-list">
+            <li>Controls that have a <code>name</code></li>
+            <li>Readonly fields</li>
+            <li>Hidden inputs</li>
+            <li>Checked checkboxes, using their <code>value</code></li>
+            <li>The selected radio button in each group</li>
+            <li>Selected options in a select (every selected option in a multiple select)</li>
+            <li>The submit button that was used, if it has a <code>name</code></li>
+          </ul>
+        </div>
 
-        <h4>What does not get submitted</h4>
-        <ul class="rule-list">
-          <li>Controls with no <code>name</code></li>
-          <li>Disabled fields</li>
-          <li>Unchecked checkboxes (not even as <code>false</code> or <code>no</code>)</li>
-          <li>Radio buttons that are not selected</li>
-          <li>Options that are not selected</li>
-          <li>Submit buttons that were not used, and reset buttons</li>
-          <li>Anything at all, if the form fails validation</li>
-        </ul>
+        <div class="rule-group rule-not-submitted">
+          <h4>What does not get submitted</h4>
+          <ul class="rule-list">
+            <li>Controls with no <code>name</code></li>
+            <li>Disabled fields</li>
+            <li>Unchecked checkboxes (not even as <code>false</code> or <code>no</code>)</li>
+            <li>Radio buttons that are not selected</li>
+            <li>Options that are not selected</li>
+            <li>Submit buttons that were not used, and reset buttons</li>
+            <li>Anything at all, if the form fails validation</li>
+          </ul>
+        </div>
       </section>
     </div>
   </main>
@@ -688,6 +828,7 @@
         ? ` using “${submitter.textContent.trim()}”`
         : '';
 
+      formMessage.dataset.tone = 'success';
       formMessage.textContent =
         (submitter && buttonMessages[submitter.value]) || buttonMessages.submit;
 
@@ -700,6 +841,7 @@
         entriesContainer.innerHTML = '<p class="empty">No submission yet.</p>';
         encodedOutput.textContent = 'No submission yet.';
         status.textContent = 'Submit the form to see the result.';
+        formMessage.dataset.tone = 'neutral';
         formMessage.textContent = 'The form has been reset.';
       });
     });
