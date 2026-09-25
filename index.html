@@ -701,8 +701,11 @@
 
         <h3>URL-encoded view</h3>
         <p class="help">
-          In forms that use <code>method="post"</code>, this string is actually
-          sent to the server.
+          This string is URL-encoded, which is the default format for form data
+          (<code>enctype="application/x-www-form-urlencoded"</code>). With
+          <code>method="post"</code> the browser sends it in the body of the
+          request. With <code>method="get"</code> it is added to the end of the
+          action URL after a <code>?</code>.
         </p>
         <pre id="encoded">No submission yet.</pre>
 
@@ -715,6 +718,14 @@
           <div>
             <strong>Action</strong>
             <span id="action">/example-endpoint</span>
+          </div>
+          <div>
+            <strong>Encoding type</strong>
+            <span id="enctype">application/x-www-form-urlencoded</span>
+            <p class="help">
+              The default. Only used with <code>method="post"</code>, since
+              <code>method="get"</code> always url-encodes into the address bar.
+            </p>
           </div>
         </div>
 
@@ -761,6 +772,7 @@
     const status = document.querySelector('#status');
     const methodOutput = document.querySelector('#method');
     const actionOutput = document.querySelector('#action');
+    const enctypeOutput = document.querySelector('#enctype');
     const formMessage = document.querySelector('#form-message');
 
     const buttonMessages = {
@@ -823,6 +835,7 @@
 
       methodOutput.textContent = form.method.toUpperCase();
       actionOutput.textContent = form.getAttribute('action');
+      enctypeOutput.textContent = form.enctype;
 
       const buttonDescription = submitter
         ? ` using “${submitter.textContent.trim()}”`
